@@ -22,3 +22,10 @@ class ResumeParseResponse(BaseModel):
     education: list[str] = Field(default_factory=list)
     projects: list[str] = Field(default_factory=list)
     experience: list[str] = Field(default_factory=list)
+
+
+class ResumeProcessingResponse(BaseModel):
+    """Combined upload metadata and parsed resume data."""
+
+    upload: ResumeUploadResponse
+    parsed_resume: ResumeParseResponse

@@ -40,6 +40,13 @@ def save_resume(upload: UploadFile) -> tuple[str, int, str]:
     return saved_filename, size, saved_path
 
 
+def get_saved_resume_path(filename: str) -> Path:
+    """Return the internal path for a filename created by the file service."""
+    if Path(filename).name != filename:
+        raise ResumeStorageError("The saved resume path is invalid.")
+    return UPLOAD_DIRECTORY / filename
+
+
 def _safe_filename(filename: str | None) -> str:
     if not filename:
         raise InvalidResumeError("A filename is required.")
