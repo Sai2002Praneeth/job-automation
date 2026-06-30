@@ -35,3 +35,11 @@ logs/
 # OS files
 .DS_Store
 Thumbs.db
+
+# Uploaded resumes
+resume/originals/*
+!resume/originals/.gitkeep
+
+# Tailored resumes
+resume/tailored/*
+!resume/tailored/.gitkeep
