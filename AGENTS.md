@@ -117,3 +117,52 @@ After implementing a feature:
 Do not perform Git operations.
 
 Do not modify AGENTS.md unless requested.
+
+## Service Design
+
+Services should be reusable.
+
+Business logic must be implemented inside services.
+
+API routers should only:
+
+* Validate requests.
+* Call services.
+* Return responses.
+
+Services should never depend on API routers.
+
+---
+
+## Resume Processing
+
+Resume parsing must be independent of uploading.
+
+The parser should be reusable by future features such as:
+
+* Resume Upload
+* Resume Tailoring
+* ATS Scoring
+* Job Matching
+
+Avoid coupling parsing logic to a single API endpoint.
+
+---
+
+## Architecture Rule
+
+Prefer reusable services over feature-specific implementations.
+
+If functionality may be reused in future milestones, implement it as a service.
+
+---
+
+## Before Finishing
+
+Before completing any milestone:
+
+* Verify imports.
+* Verify syntax.
+* Verify the project starts successfully.
+* Report modified files.
+* Do not modify unrelated files.
