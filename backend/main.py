@@ -1,5 +1,7 @@
 from fastapi import FastAPI
+from api.health import router as health_router
 from api.resume import router as resume_router
+
 
 app = FastAPI(
     title="AI Job Automation Platform",
@@ -7,7 +9,10 @@ app = FastAPI(
     version="1.0.0",
 )
 
+app.include_router(health_router)
 app.include_router(resume_router)
+
+
 @app.get("/health")
-async def health_check():
+async def health_check() -> dict[str, str]:
     return {"status": "healthy"}
