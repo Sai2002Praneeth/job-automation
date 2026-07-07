@@ -20,6 +20,14 @@ class ResumeRepository:
     def get_by_id(self, resume_id: int) -> Resume | None:
         return self.database_session.get(Resume, resume_id)
 
+    def get_by_path(self, resume_path: str) -> Resume | None:
+        statement = (
+            select(Resume)
+            .where(Resume.resume_path == resume_path)
+            .order_by(Resume.id)
+        )
+        return self.database_session.scalars(statement).first()
+
     def list_all(self) -> Sequence[Resume]:
         statement = select(Resume).order_by(Resume.id)
         return self.database_session.scalars(statement).all()

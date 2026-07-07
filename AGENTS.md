@@ -1,168 +1,245 @@
-# AGENTS.md
+# AGENTS
 
-## Project
+## Project Overview
 
-AI Job Automation Platform
+This repository contains an AI-powered Job Automation Platform that helps users search for jobs, analyze resumes, tailor resumes, generate cover letters, automate job applications where possible, and track application progress.
 
-Tech Stack
-
-* Python 3.13
-* FastAPI
-* Playwright
-* PostgreSQL
-* TypeScript
-* VS Code
+The primary objective is to build a production-quality, modular, maintainable, and scalable application.
 
 ---
 
-## Architecture
+## Tech Stack
 
-Always follow layered architecture.
+- Python 3.13
+- FastAPI
+- SQLAlchemy 2.x
+- Alembic
+- PostgreSQL
+- Playwright
+- TypeScript
+- React (future)
+- VS Code
 
+---
+
+## High-Level Architecture
+
+Always follow the project architecture.
+
+```
 API Router
-↓
-
+    ↓
 Service Layer
-↓
-
+    ↓
+Repository Layer
+    ↓
 Database / File System
+```
 
-Business logic must never be placed inside API routers.
-
-Keep `main.py` minimal.
+Never bypass layers unless explicitly instructed.
 
 ---
 
 ## Project Structure
 
+```
 backend/
-api/
-services/
-models/
-database/
+    api/
+    services/
+    repositories/
+    models/
+    database/
+    utils/
 
 automation/
-playwright/
-sites/
-pages/
+    playwright/
+    sites/
+    pages/
 
 frontend/
 
 resume/
 
 generated/
+```
+
+Follow the existing project structure.
+
+Create new folders only when they provide clear architectural value.
 
 ---
 
-## Coding Standards
+## Layer Responsibilities
 
-* Use Python type hints.
-* Use async FastAPI endpoints where appropriate.
-* Keep functions small.
-* Write readable code.
-* Avoid duplicate code.
-* Prefer composition over large classes.
+### API Layer
 
----
+API routers are responsible only for:
 
-## File Rules
+- Receiving requests
+- Validating requests
+- Calling services
+- Returning responses
 
-Modify only the files requested.
-
-Do not refactor unrelated code.
-
-Do not rename files unless instructed.
-
-Do not create unnecessary files.
+API routers must never contain business logic or database logic.
 
 ---
 
-## Dependencies
+### Service Layer
 
-Do not install new packages unless necessary.
+Services are responsible for business logic.
 
-Reuse existing libraries whenever possible.
+Services should:
 
----
+- be reusable
+- remain independent of API routers
+- coordinate repositories and utility modules
+- contain feature-specific workflows
 
-## Error Handling
-
-Use proper HTTPException for API errors.
-
-Return meaningful JSON responses.
-
-Never hide exceptions silently.
+Services must never depend on HTTP-specific behavior.
 
 ---
 
-## Security
+### Repository Layer
 
-Validate all user inputs.
+Repositories are the only layer allowed to communicate directly with SQLAlchemy ORM.
 
-Never trust uploaded files.
+Repositories should:
 
-Do not expose secrets.
+- receive a SQLAlchemy Session
+- perform CRUD operations
+- return ORM entities
 
----
+Repositories must not contain business logic.
 
-## Workflow
-
-After implementing a feature:
-
-1. Verify the code.
-2. Ensure imports are correct.
-3. Ensure no syntax errors.
-4. Report modified files.
-
-Do not perform Git operations.
-
-Do not modify AGENTS.md unless requested.
-
-## Service Design
-
-Services should be reusable.
-
-Business logic must be implemented inside services.
-
-API routers should only:
-
-* Validate requests.
-* Call services.
-* Return responses.
-
-Services should never depend on API routers.
+Repositories must not commit transactions unless explicitly required.
 
 ---
 
-## Resume Processing
+### Database Layer
 
-Resume parsing must be independent of uploading.
+Database models represent persistent data only.
 
-The parser should be reusable by future features such as:
+Database models should not contain business logic.
 
-* Resume Upload
-* Resume Tailoring
-* ATS Scoring
-* Job Matching
-
-Avoid coupling parsing logic to a single API endpoint.
+Schema changes must be handled through Alembic migrations.
 
 ---
 
-## Architecture Rule
+## Service Design Rules
 
-Prefer reusable services over feature-specific implementations.
+When functionality may be reused by multiple features, implement it as a reusable service instead of embedding the logic inside a specific feature.
 
-If functionality may be reused in future milestones, implement it as a service.
+Prefer extending existing services over creating duplicate implementations.
+
+Keep services cohesive and focused on a single responsibility.
 
 ---
 
-## Before Finishing
+## Resume Processing Rules
 
-Before completing any milestone:
+Resume parsing must remain independent of uploading.
 
-* Verify imports.
-* Verify syntax.
-* Verify the project starts successfully.
-* Report modified files.
-* Do not modify unrelated files.
+The parser should be reusable by future modules including:
+
+- Resume Upload
+- Resume Tailoring
+- ATS Scoring
+- Job Matching
+- Search Profile Generation
+
+Do not tightly couple parsing logic to any specific API endpoint.
+
+---
+
+## Dependency Rules
+
+Prefer existing project modules before introducing new dependencies.
+
+Do not install additional libraries unless they provide significant value that cannot reasonably be implemented using the current stack.
+
+---
+
+## Security Rules
+
+Validate all external input.
+
+Validate uploaded files before processing.
+
+Never expose secrets.
+
+Never hardcode credentials.
+
+Always load configuration from environment variables.
+
+---
+
+## Configuration Rules
+
+Application configuration must come from `.env`.
+
+Do not duplicate configuration values across the project.
+
+Keep configuration centralized.
+
+---
+
+## Workflow Rules
+
+For every requested task:
+
+- Implement only the requested feature.
+- Preserve backward compatibility.
+- Minimize unrelated modifications.
+- Reuse existing architecture whenever possible.
+- Avoid unnecessary refactoring.
+- Keep the implementation consistent with existing project structure.
+
+---
+
+## Commands
+
+### Run Backend
+
+```
+cd backend
+uvicorn main:app --reload
+```
+
+### Database Migration
+
+```
+alembic revision --autogenerate -m "<message>"
+alembic upgrade head
+```
+
+### Current Migration
+
+```
+alembic current
+```
+
+---
+
+## AI Agent Rules
+
+Always read and follow:
+
+- ENGINEERING_STANDARDS.md
+- PROJECT_ROADMAP.md
+- PROJECT_DECISIONS.md
+- PRODUCT_REQUIREMENTS.md
+
+Before finishing any task:
+
+- Verify imports.
+- Verify syntax.
+- Ensure the application starts successfully.
+- Preserve existing functionality.
+- Report only modified files.
+
+Do not:
+
+- modify unrelated files
+- perform Git operations
+- change project architecture without instruction
+- introduce breaking changes

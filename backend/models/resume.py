@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import DateTime, JSON, String, Text, func
+from sqlalchemy import BigInteger, DateTime, JSON, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from database.base import Base
@@ -25,7 +25,14 @@ class Resume(Base):
     raw_text: Mapped[str] = mapped_column(Text)
     skills: Mapped[list[str]] = mapped_column(JSON, default=list)
     education: Mapped[list[str]] = mapped_column(JSON, default=list)
+    projects: Mapped[list[str]] = mapped_column(JSON, default=list)
     experience: Mapped[list[str]] = mapped_column(JSON, default=list)
+    filename: Mapped[str] = mapped_column(String(255), default='')
+    content_type: Mapped[str] = mapped_column(
+        String(255),
+        default='application/pdf',
+    )
+    file_size: Mapped[int] = mapped_column(BigInteger, default=0)
     resume_path: Mapped[str] = mapped_column(String(1024))
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
