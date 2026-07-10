@@ -1,6 +1,6 @@
 from collections.abc import Sequence
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from models.resume import Resume
@@ -24,9 +24,31 @@ class ResumeRepository:
         statement = (
             select(Resume)
             .where(Resume.resume_path == resume_path)
-            .order_by(Resume.id)
+            .order_by(Resume.id.desc())
         )
         return self.database_session.scalars(statement).first()
+
+    def get_active(self) -> Resume | None:
+        statement = (
+            select(Resume)
+            .where(Resume.is_active.is_(True))
+            .order_by(Resume.version_number.desc(), Resume.id.desc())
+        )
+        return self.database_session.scalars(statement).first()
+
+    def get_latest_version_number(self, root_resume_id: int) -> int:
+        statement = select(func.max(Resume.version_number)).where(
+            Resume.root_resume_id == root_resume_id
+        )
+        return self.database_session.scalar(statement) or 0
+
+    def list_versions(self, root_resume_id: int) -> Sequence[Resume]:
+        statement = (
+            select(Resume)
+            .where(Resume.root_resume_id == root_resume_id)
+            .order_by(Resume.version_number.desc(), Resume.id.desc())
+        )
+        return self.database_session.scalars(statement).all()
 
     def list_all(self) -> Sequence[Resume]:
         statement = select(Resume).order_by(Resume.id)
@@ -36,6 +58,12 @@ class ResumeRepository:
         updated_resume = self.database_session.merge(resume)
         self.database_session.flush()
         return updated_resume
+
+    def update_many(self, resumes: Sequence[Resume]) -> Sequence[Resume]:
+        for resume in resumes:
+            self.database_session.merge(resume)
+        self.database_session.flush()
+        return resumes
 
     def delete(self, resume: Resume) -> None:
         self.database_session.delete(resume)

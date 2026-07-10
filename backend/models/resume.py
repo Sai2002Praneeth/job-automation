@@ -3,7 +3,17 @@ from __future__ import annotations
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import BigInteger, DateTime, JSON, String, Text, func
+from sqlalchemy import (
+    BigInteger,
+    Boolean,
+    DateTime,
+    ForeignKey,
+    Integer,
+    JSON,
+    String,
+    Text,
+    func,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from database.base import Base
@@ -34,6 +44,12 @@ class Resume(Base):
     )
     file_size: Mapped[int] = mapped_column(BigInteger, default=0)
     resume_path: Mapped[str] = mapped_column(String(1024))
+    root_resume_id: Mapped[int | None] = mapped_column(
+        ForeignKey("resumes.id"),
+        index=True,
+    )
+    version_number: Mapped[int] = mapped_column(Integer, default=1)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         server_default=func.now(),
@@ -47,3 +63,5 @@ class Resume(Base):
     applications: Mapped[list[Application]] = relationship(
         back_populates="resume"
     )
+
+

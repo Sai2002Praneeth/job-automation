@@ -9,6 +9,9 @@ class ResumeUploadResponse(BaseModel):
     content_type: str
     size: int = Field(ge=0)
     saved_path: str
+    resume_id: int | None = None
+    version_number: int | None = None
+    is_active: bool | None = None
 
 
 class ResumeParseResponse(BaseModel):
@@ -29,3 +32,4 @@ class ResumeProcessingResponse(BaseModel):
 
     upload: ResumeUploadResponse
     parsed_resume: ResumeParseResponse
+

@@ -110,6 +110,9 @@ async def upload_resume(
             file_size=upload_response.size,
             resume_path=upload_response.saved_path,
         )
+        upload_response.resume_id = stored_resume.id
+        upload_response.version_number = stored_resume.version_number
+        upload_response.is_active = stored_resume.is_active
         parsed_resume = await _parse_pdf(
             get_saved_resume_path(upload_response.filename),
             resume_service,
@@ -173,3 +176,4 @@ async def _parse_pdf(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(exc),
         ) from exc
+
