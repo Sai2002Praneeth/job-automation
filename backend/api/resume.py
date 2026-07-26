@@ -1,10 +1,11 @@
-from pathlib import Path
+﻿from pathlib import Path
 from typing import Annotated, BinaryIO
 
 from fastapi import (
     APIRouter,
     Depends,
     File,
+    Form,
     HTTPException,
     Query,
     UploadFile,
@@ -15,9 +16,11 @@ from starlette.concurrency import run_in_threadpool
 
 from database.session import get_db
 from models.response import (
+    ResumeLibraryResponse,
     ResumeParseResponse,
     ResumeProcessingResponse,
     ResumeUploadResponse,
+    ResumeVersionResponse,
 )
 from repositories.resume_repository import ResumeRepository
 from services.file_service import (
@@ -33,7 +36,12 @@ from services.resume_parser import (
     ResumeParsingError,
     resume_parser,
 )
-from services.resume_service import ResumeNotFoundError, ResumeService
+from services.resume_service import (
+    InvalidResumeLibrarySelectionError,
+    ResumeLibraryNotFoundError,
+    ResumeNotFoundError,
+    ResumeService,
+)
 
 router = APIRouter(prefix="/api/resume", tags=["resume"])
 DatabaseSession = Annotated[Session, Depends(get_db)]
@@ -50,6 +58,58 @@ ResumeServiceDependency = Annotated[
     ResumeService,
     Depends(get_resume_service),
 ]
+
+
+@router.get(
+    "/libraries",
+    response_model=list[ResumeLibraryResponse],
+)
+def list_resume_libraries(
+    resume_service: ResumeServiceDependency,
+) -> list[ResumeLibraryResponse]:
+    """Return named resume library entries."""
+    return [
+        ResumeLibraryResponse.model_validate(resume_library)
+        for resume_library in resume_service.list_resume_libraries()
+    ]
+
+
+@router.get(
+    "/libraries/{resume_library_id}/versions",
+    response_model=list[ResumeVersionResponse],
+)
+def list_resume_library_versions(
+    resume_service: ResumeServiceDependency,
+    resume_library_id: int,
+) -> list[ResumeVersionResponse]:
+    """Return version history for a resume library entry."""
+    try:
+        versions = resume_service.list_library_versions(resume_library_id)
+    except ResumeLibraryNotFoundError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(exc),
+        ) from exc
+
+    return [ResumeVersionResponse.model_validate(version) for version in versions]
+
+
+@router.get(
+    "/libraries/{resume_library_id}/active",
+    response_model=ResumeVersionResponse,
+)
+def get_active_resume_version(
+    resume_service: ResumeServiceDependency,
+    resume_library_id: int,
+) -> ResumeVersionResponse:
+    """Return the active version for a resume library entry."""
+    active_resume = resume_service.get_active_resume(resume_library_id)
+    if active_resume is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Active resume version was not found.",
+        )
+    return ResumeVersionResponse.model_validate(active_resume)
 
 
 @router.post(
@@ -100,17 +160,35 @@ async def parse_resume(
 async def upload_resume(
     resume_service: ResumeServiceDependency,
     file: UploadFile = File(...),
+    resume_library_id: Annotated[int | None, Form(gt=0)] = None,
+    resume_library_name: Annotated[str | None, Form(max_length=255)] = None,
 ) -> ResumeProcessingResponse:
-    """Validate, persist, and parse a PDF resume."""
+    """Validate, persist, parse, and version a PDF resume."""
     try:
         upload_response = await _save_resume(file)
-        stored_resume = resume_service.persist_uploaded_resume(
-            filename=upload_response.filename,
-            content_type=upload_response.content_type,
-            file_size=upload_response.size,
-            resume_path=upload_response.saved_path,
-        )
+        try:
+            stored_resume = resume_service.persist_uploaded_resume(
+                filename=upload_response.filename,
+                content_type=upload_response.content_type,
+                file_size=upload_response.size,
+                resume_path=upload_response.saved_path,
+                resume_library_id=resume_library_id,
+                resume_library_name=resume_library_name,
+            )
+        except ResumeLibraryNotFoundError as exc:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=str(exc),
+            ) from exc
+        except InvalidResumeLibrarySelectionError as exc:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=str(exc),
+            ) from exc
+
         upload_response.resume_id = stored_resume.id
+        upload_response.resume_library_id = stored_resume.resume_library_id
+        upload_response.resume_library_name = stored_resume.resume_library.name
         upload_response.version_number = stored_resume.version_number
         upload_response.is_active = stored_resume.is_active
         parsed_resume = await _parse_pdf(
@@ -176,4 +254,3 @@ async def _parse_pdf(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(exc),
         ) from exc
-

@@ -333,3 +333,70 @@ A task is complete only if:
 - Application starts successfully.
 - No unnecessary files were modified.
 - Modified files are reported.
+
+# Connector Standards
+
+## Connector Architecture
+
+All job sources must follow a common interface.
+
+Examples include:
+
+- Greenhouse
+- Lever
+- Ashby
+- Workday
+- Company Career Sites
+- Future Job Boards
+
+Rules
+
+- One connector = one portal.
+- No portal-specific logic outside connectors.
+- Services should communicate only through connector abstractions.
+- Connectors should normalize data into a common Job model.
+
+---
+
+# Automation Standards
+
+Automation should always follow:
+
+Application Readiness Engine
+        ↓
+Automation Engine
+        ↓
+Intervention Queue
+
+Rules
+
+- Never silently fail.
+- Always save failure information.
+- Support retries.
+- Make automation resumable.
+
+# AI Pipeline Standards
+
+AI-driven features should be implemented as modular pipelines.
+
+General flow:
+
+Input
+    ↓
+Extraction
+    ↓
+Normalization
+    ↓
+Evaluation
+    ↓
+Persistence
+    ↓
+API Response
+
+Rules
+
+- Each pipeline stage must have a single responsibility.
+- Prompt templates should be reusable.
+- LLM providers must remain replaceable.
+- Evaluation logic should not be coupled to API routes.
+- Prefer explainable outputs over opaque scores.

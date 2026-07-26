@@ -202,3 +202,88 @@ Possible examples include:
 - Multi-user support
 
 These enhancements are intentionally outside the initial roadmap and should not affect the current implementation plan.
+
+# Current Status
+
+Current Phase
+
+Phase 2 — Resume Management
+
+Current Milestone
+
+M9 — Resume Versioning
+
+Completed
+
+M1–M8
+
+---
+
+# Phase 1 — Foundation ✅
+
+- M1 FastAPI Setup
+- M2 Resume Upload
+- M3 Resume Parser
+- M3.5 Resume Processing Pipeline
+- M4 Database Infrastructure
+- M5 Database Models
+- M6 Alembic Migration
+- M7 Repository Layer
+- M8 Resume Persistence
+
+---
+
+# Phase 2 — Resume Management
+
+- M9 Resume Versioning
+- M10 Resume Library
+- M11 Resume Performance Analytics
+
+---
+
+# Phase 3 — Intelligent Job Discovery
+
+- M12 Search Profile Engine
+- M13 Connector Framework
+- M14 Greenhouse Connector
+- M15 Lever Connector
+- M16 Ashby Connector
+- M17 Company Career Connector
+- M18 Job Board Connector
+- M19 Job Normalization
+- M20 Duplicate Detection
+- M21 Job Health Monitor
+
+---
+
+# Phase 4 — AI Intelligence
+
+- M22 Job Evaluation Engine
+- M23 Skills Gap Analysis
+- M24 Recommendation Engine
+- M25 Resume Tailoring
+- M26 Cover Letter Generator
+- M27 Application Answer Generator
+
+---
+
+# Phase 5 — Automation
+
+- M28 Automation Capability Detection
+- M29 Application Rules Engine
+- M30 Approval Queue
+- M31 Playwright Automation Engine
+- M32 Intervention Queue
+- M33 Application Tracker
+
+---
+
+# Phase 6 — Dashboard & Insights
+
+- M34 Dashboard
+- M35 Analytics
+- M36 Company Intelligence
+- M37 Personal Job Search Memory
+- M38 Interview Knowledge Base
+- M39 Notifications & Scheduler
+- M40 Production Hardening

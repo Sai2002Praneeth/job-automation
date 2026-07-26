@@ -243,3 +243,17 @@ Do not:
 - perform Git operations
 - change project architecture without instruction
 - introduce breaking changes
+
+## Extensibility
+
+The system must remain modular and extensible.
+
+Rules:
+
+- Every external job source must be implemented as a connector.
+- Never place portal-specific logic inside services.
+- New connectors must implement the common connector interface.
+- AI providers should remain replaceable.
+- Keep automation independent of any specific ATS or job board.
+- Reuse existing abstractions whenever possible.
+- Avoid creating duplicate implementations.

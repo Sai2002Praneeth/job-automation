@@ -199,3 +199,83 @@ The principle of least privilege should be followed whenever possible.
 Future architectural decisions should be recorded here instead of being scattered across implementation code or milestone prompts.
 
 New permanent decisions should be added only after they become part of the agreed project architecture.
+
+# Product Positioning
+
+The application is an AI-assisted Job Search Operating System.
+
+It is not an Auto Apply Bot.
+
+Primary objectives:
+
+- Find better jobs.
+- Evaluate jobs intelligently.
+- Automate repetitive work.
+- Keep users in control.
+- Preserve complete job-search history.
+
+---
+
+# Automation Strategy
+
+Automation First
+
+Human Assisted
+
+Never Human Blocked
+
+Automation should always be attempted when technically feasible.
+
+If automation cannot continue:
+
+- Save progress.
+- Notify the user.
+- Allow resuming from the failure point.
+
+---
+
+# Connector Architecture
+
+All job portals must be implemented through a connector architecture.
+
+Business logic must never depend on a specific portal implementation.
+
+---
+
+# Failure Recovery
+
+Application failures are product features.
+
+Failures should:
+
+- be logged,
+- be recoverable,
+- appear in the Intervention Queue,
+- never disappear silently.
+
+## Resume Intelligence Strategy
+
+The Resume Intelligence Engine will follow a modular pipeline.
+
+Pipeline:
+
+Resume PDF
+    ↓
+Structured Extraction
+    ↓
+Normalization
+    ↓
+Resume Intelligence
+        ├── Resume Quality
+        ├── ATS Compatibility
+        ├── Keyword Coverage
+        ├── GitHub Enrichment (optional)
+        ├── Explainable Evaluation
+        └── AI Suggestions
+
+Implementation Notes
+
+- The implementation may take architectural inspiration from open-source resume evaluation projects.
+- External repositories should be treated as references rather than dependencies.
+- Resume Intelligence must integrate with the existing Service → Repository → Database architecture.
+- The evaluation pipeline must remain provider-agnostic.

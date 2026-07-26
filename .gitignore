@@ -43,3 +43,7 @@ resume/originals/*
 # Tailored resumes
 resume/tailored/*
 !resume/tailored/.gitkeep
+
+# Claude Code local settings
+.claude/settings.local.json
+/CLAUDE.md

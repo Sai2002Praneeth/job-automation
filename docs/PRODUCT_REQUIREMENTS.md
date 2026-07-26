@@ -488,3 +488,66 @@ The platform will not:
 - Bypass website security.
 - Circumvent authentication mechanisms.
 - Perform unethical automation.
+
+# Product Philosophy
+
+The platform is an AI-assisted Job Search Operating System.
+
+Core Principles
+
+- Evaluate before applying.
+- Prefer quality over quantity.
+- Search multiple sources.
+- Support exact job URLs.
+- Remove duplicate jobs.
+- Score jobs across multiple dimensions.
+- Recommend instead of blindly applying.
+- Automate wherever technically feasible.
+- Keep users in control.
+- Never silently lose an application.
+- Every automation failure must be recoverable.
+
+---
+
+# Application Modes
+
+The platform supports three application modes.
+
+1. Fully Automated
+
+- Discover
+- Evaluate
+- Auto Apply
+- Track
+
+2. Semi Automated
+
+- Auto Fill
+- User Intervention
+- Continue Automatically
+
+3. Assisted
+
+- Generate Resume
+- Generate Cover Letter
+- Generate Answers
+- Open Exact Job URL
+- User Submits
+
+---
+
+# Personal Job Search Memory
+
+The platform shall maintain long-term career history.
+
+Examples:
+
+- Previous applications
+- Recruiter interactions
+- Interview history
+- Company notes
+- Resume performance
+- Personal notes
+- Application outcomes
+
+This information shall be searchable and reusable by future AI features.
