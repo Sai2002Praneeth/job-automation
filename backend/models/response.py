@@ -60,8 +60,83 @@ class ResumeLibraryResponse(BaseModel):
     updated_at: datetime
 
 
+class ResumeLibraryMetadataResponse(ResumeLibraryResponse):
+    """Resume library details with its version summary."""
+
+    version_count: int = Field(ge=0)
+    active_resume_id: int | None = None
+
+
+class ResumeLibraryPageResponse(BaseModel):
+    """A searchable, sorted page of resume libraries."""
+
+    items: list[ResumeLibraryResponse]
+    page: int = Field(ge=1)
+    page_size: int = Field(ge=1)
+    total: int = Field(ge=0)
+
+
+class ResumeLibraryRenameRequest(BaseModel):
+    """Request payload for changing a resume library name."""
+
+    name: str = Field(min_length=1, max_length=255)
+
+
 class ResumeProcessingResponse(BaseModel):
     """Combined upload metadata and parsed resume data."""
 
     upload: ResumeUploadResponse
     parsed_resume: ResumeParseResponse
+
+class ResumeSectionResponse(BaseModel):
+    """Detection status for a standard resume section."""
+
+    name: str
+    detected: bool
+
+
+class ResumeCompletenessResponse(BaseModel):
+    """Explainable completion assessment for a resume."""
+
+    score: int = Field(ge=0, le=100)
+    present_fields: list[str]
+    missing_fields: list[str]
+
+
+class ResumeProfileResponse(BaseModel):
+    """Normalized profile generated from persisted parsed resume data."""
+
+    resume_id: int
+    full_name: str | None = None
+    email: str | None = None
+    phone: str | None = None
+    skills: list[str]
+    sections: list[ResumeSectionResponse]
+    completeness: ResumeCompletenessResponse
+
+
+class ResumeStatisticsResponse(BaseModel):
+    """Deterministic statistics for a stored resume."""
+
+    word_count: int = Field(ge=0)
+    character_count: int = Field(ge=0)
+    line_count: int = Field(ge=0)
+    skill_count: int = Field(ge=0)
+    normalized_skill_count: int = Field(ge=0)
+    duplicate_skill_count: int = Field(ge=0)
+    detected_section_count: int = Field(ge=0)
+
+
+class ResumeQualityWarningResponse(BaseModel):
+    """A deterministic and actionable resume quality warning."""
+
+    code: str
+    severity: str
+    message: str
+
+
+class ResumeQualityResponse(BaseModel):
+    """Quality warnings generated from deterministic resume rules."""
+
+    resume_id: int
+    warnings: list[ResumeQualityWarningResponse]

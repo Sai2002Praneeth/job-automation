@@ -1,4 +1,4 @@
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import BinaryIO
 
 from fastapi import UploadFile
@@ -45,6 +45,15 @@ def get_saved_resume_path(filename: str) -> Path:
     if Path(filename).name != filename:
         raise ResumeStorageError("The saved resume path is invalid.")
     return UPLOAD_DIRECTORY / filename
+
+
+def get_stored_resume_path(saved_path: str) -> Path:
+    """Resolve a database resume path only when it targets managed storage."""
+    path = PurePosixPath(saved_path)
+    expected_parent = PurePosixPath(PUBLIC_UPLOAD_DIRECTORY.as_posix())
+    if path.parent != expected_parent or path.name != saved_path.rsplit("/", 1)[-1]:
+        raise ResumeStorageError("The stored resume path is invalid.")
+    return get_saved_resume_path(path.name)
 
 
 def _safe_filename(filename: str | None) -> str:
