@@ -1,4 +1,4 @@
-﻿# Codex Handoff
+# Codex Handoff
 
 ## Current Architecture
 
@@ -6,80 +6,70 @@ The backend follows the required layered architecture:
 
 API Router -> Service Layer -> Repository Layer -> Database/File System
 
-Routers handle HTTP validation and responses. Services own business rules. Repositories are the only layer that uses SQLAlchemy. Resume parsing remains independent of upload and reusable by future workflows.
+Routers validate HTTP requests and return response models. Services own reusable business rules. Repositories are the only SQLAlchemy layer. Resume and job-description intelligence are deterministic and independent of persistence workflows.
 
 ## Completed Milestones
 
-- M1 FastAPI Setup through M8 Resume Persistence
-- M9 Resume Versioning
-- M10 Resume Library
-- M11 Resume Management
-- M12 Resume Intelligence Core
+- M1â€“M11: Resume upload, parsing, persistence, versioning, library, and management
+- M12: Resume Intelligence Core
+- M13: Job Description Intelligence
 
 ## Current Milestone
 
-M12 Resume Intelligence Core is complete. Existing resume upload, parsing, versioning, library, and download behavior remains compatible.
+M13 â€” Job Description Intelligence is complete, including its response-model regression fix.
 
 ## Newly Implemented Features
 
-- Deterministic Resume Profile generation from persisted parsed data.
-- Skill canonicalization with alias handling and duplicate removal.
-- Detection of summary, skills, experience, education, projects, and certifications sections.
-- Explainable completeness assessment for contact fields and core sections.
-- Resume statistics: word, character, line, skill, duplicate-skill, and detected-section counts.
-- Rule-based quality warnings for missing core data, short resume text, and duplicate skills.
-- Automated regression coverage for intelligence behavior and missing resumes.
+- Deterministic, request-scoped job profile extraction.
+- Required and preferred technology skill extraction, using the shared M12 normalization utility.
+- Experience, education, location/work arrangement, salary, employment-type, and responsibility extraction.
+- Content statistics and explainable job-description quality warnings.
+- Regression fix: quality warning service dataclasses are now explicitly translated to the declared nested Pydantic response model before serialization.
+- No AI, LLM, external service, or persistence is used.
 
 ## Database Changes
 
-No schema changes were required and no Alembic migration was added. Resume Intelligence is read-only and derives results from existing `resumes` fields, especially `raw_text`, contact data, skills, education, experience, and projects.
+None. Job descriptions are not persisted, and no Alembic migration was added.
 
 ## API Changes
 
-New endpoints:
+The following endpoints accept a JSON body with `description` and optional `title`:
 
-- `GET /api/resume/{id}/profile`
-- `GET /api/resume/{id}/statistics`
-- `GET /api/resume/{id}/quality`
-- `GET /api/resume/{id}/normalized-skills`
+- `POST /api/job/analyze`
+- `POST /api/job/profile`
+- `POST /api/job/statistics`
+- `POST /api/job/quality`
 
-All return `404` for a nonexistent resume version. Existing endpoints are unchanged. Response models make the new operations available in generated OpenAPI documentation.
+All operations are published in OpenAPI. Existing API behavior remains unchanged.
 
 ## Files/Modules Added
 
-- `backend/services/resume_intelligence_service.py`
-- `backend/tests/test_resume_intelligence.py`
+- `backend/services/job_description_intelligence_service.py`
+- `backend/api/job.py`
+- `backend/tests/test_job_description_intelligence.py`
 
-M12 also updates `backend/api/resume.py`, `backend/models/response.py`, and this handoff.
+M13 also updates `backend/main.py` to register the router and `backend/models/response.py` with request and response models.
 
 ## Important Implementation Decisions
 
-- `ResumeIntelligenceService` contains all deterministic intelligence rules and calls `ResumeService`; it does not access SQLAlchemy or HTTP concerns.
-- Results reuse persisted parsed resume data and are never written back to the database.
-- No AI, LLM, external service, or new dependency is involved.
-- Skill normalization is deliberately explainable through a small canonical alias map rather than probabilistic matching.
-- Quality warnings report specific, actionable reasons rather than opaque scores.
+- `JobDescriptionIntelligenceService` contains all parsing, normalization, statistics, and warning rules; it has no HTTP, repository, or SQLAlchemy dependency.
+- Technology aliases are canonicalized through `utils.skill_normalization.normalize_skills`, shared with M12.
+- Qualification section markers make bullet items inherit Required or Preferred classification.
+- Rules are intentionally explicit and explainable; the technology vocabulary can be expanded through reviewed deterministic additions.
 
 ## Pending Milestones
 
-- M13 Connector Framework
-- M14 Greenhouse Connector
-- M15 Lever Connector
-- M16 Ashby Connector
-- M17 Company Career Connector
-- M18 Job Board Connector
-- M19 Job Normalization
-- M20 Duplicate Detection
-- M21 Job Health Monitor
+- Job matching and skill-gap analysis using resume and job intelligence
+- Resume tailoring, cover-letter generation, and decision workflows
+- Job connector, validation/deduplication, automation, tracking, and dashboard milestones
 
 ## Known Limitations
 
-- Resume ownership remains global/single-user because accounts are not implemented.
-- Resume management and intelligence are backend APIs only; there is no frontend UI.
-- Section detection relies on recognized headings and existing parser output; unconventional formatting may not be detected.
-- Skill aliases are intentionally limited and should be expanded only through reviewed deterministic rules.
-- Resume Intelligence does not yet evaluate a resume against a job description.
+- Extraction is heuristic and supports common English headings and formats only.
+- Location, salary, education field, and experience parsing are conservative rather than exhaustive.
+- Job descriptions are analyzed only per request and cannot yet be retrieved later.
+- Real HTTP integration tests run a temporary Uvicorn server using the standard library because this environment does not include `httpx` for FastAPI `TestClient`.
 
 ## Recommended Starting Point for the Next Codex Session
 
-Start the agreed next milestone, retaining the API -> Service -> Repository architecture. Keep the Resume Intelligence service deterministic and read-only unless a future approved milestone explicitly introduces provider-backed evaluation.
+Build the agreed resume-to-job matching or skill-gap workflow by composing `ResumeIntelligenceService` and `JobDescriptionIntelligenceService`. Keep it deterministic unless a future approved milestone explicitly adds a replaceable AI provider.

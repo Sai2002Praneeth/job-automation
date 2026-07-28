@@ -140,3 +140,79 @@ class ResumeQualityResponse(BaseModel):
 
     resume_id: int
     warnings: list[ResumeQualityWarningResponse]
+
+
+class JobAnalysisRequest(BaseModel):
+    """Unpersisted job description supplied for deterministic analysis."""
+
+    description: str = Field(min_length=1, max_length=100_000)
+    title: str | None = Field(default=None, max_length=255)
+
+
+class JobExperienceResponse(BaseModel):
+    minimum_years: int | None = Field(default=None, ge=0)
+    maximum_years: int | None = Field(default=None, ge=0)
+    requirements: list[str]
+
+
+class JobEducationResponse(BaseModel):
+    degrees: list[str]
+    fields: list[str]
+
+
+class JobLocationResponse(BaseModel):
+    locations: list[str]
+    remote_type: str | None = None
+
+
+class JobSalaryResponse(BaseModel):
+    raw_text: str | None = None
+    minimum: int | None = Field(default=None, ge=0)
+    maximum: int | None = Field(default=None, ge=0)
+    currency: str | None = None
+    period: str | None = None
+
+
+class JobEmploymentResponse(BaseModel):
+    employment_types: list[str]
+    remote_type: str | None = None
+
+
+class JobProfileResponse(BaseModel):
+    """Normalized profile extracted from a job description."""
+
+    title: str | None = None
+    required_skills: list[str]
+    preferred_skills: list[str]
+    experience: JobExperienceResponse
+    education: JobEducationResponse
+    location: JobLocationResponse
+    salary: JobSalaryResponse
+    employment: JobEmploymentResponse
+    responsibilities: list[str]
+
+
+class JobStatisticsResponse(BaseModel):
+    word_count: int = Field(ge=0)
+    character_count: int = Field(ge=0)
+    line_count: int = Field(ge=0)
+    required_skill_count: int = Field(ge=0)
+    preferred_skill_count: int = Field(ge=0)
+    responsibility_count: int = Field(ge=0)
+    experience_requirement_count: int = Field(ge=0)
+
+
+class JobQualityWarningResponse(BaseModel):
+    code: str
+    severity: str
+    message: str
+
+
+class JobQualityResponse(BaseModel):
+    warnings: list[JobQualityWarningResponse]
+
+
+class JobAnalysisResponse(BaseModel):
+    profile: JobProfileResponse
+    statistics: JobStatisticsResponse
+    quality: JobQualityResponse
